@@ -122,7 +122,7 @@ def import_data():
 	global startdata
 	filepath_attempts = parameters.zero
 	while filepath_attempts < parameters.attempts_max:
-		filepath = input(wrapper.fill('Please place the complete file path here with the file name for your dataset in .csv or .xlsx format.'))
+		filepath = input(wrapper.fill('Please place the complete file path here with the file name for your dataset in .csv or .xlsx format.   '))
 		if os.path.exists(filepath):
 			break
 		else:
@@ -149,7 +149,7 @@ def import_data():
 	global aggregate
 	y_attempts = parameters.zero
 	while y_attempts < parameters.attempts_max:
-		yvariablebox = input('What is the dependent (y) variable for your dataset?')
+		yvariablebox = input('What is the dependent (y) variable for your dataset?   ')
 		y = yvariablebox.lower()
 		if y in startdata.columns:
 			break
@@ -167,7 +167,7 @@ def import_data():
 		warnings.warn('\n' + '\n' + wrapper.fill('The specified column was not an integer or float datatype so the package has converted all datapoints in the column to an integer.'), Warning)
 	timevar_attempts = parameters.zero
 	while timevar_attempts < parameters.attempts_max:
-		timevariablebox = input('What is the time variable you wish to use for your model?')
+		timevariablebox = input('What is the time variable you wish to use for your model?   ')
 		timevariable = timevariablebox.lower()
 		if timevariable in startdata.columns:
 			break
@@ -179,7 +179,7 @@ def import_data():
 				exit()
 	resample_attempt = parameters.zero
 	while resample_attempt < parameters.attempts_max:
-		resamplefreq = input(wrapper.fill('What time frequency do you want for your output? Type MS for Monthly and W for weekly results. If your data is already aggregated to a weekly or monthly level please choose that option.'))
+		resamplefreq = input(wrapper.fill('What time frequency do you want for your output? Type MS for Monthly and W for weekly results. If your data is already aggregated to a weekly or monthly level please choose that option.   '))
 		if resamplefreq in ['MS','W']:
 			break
 		else:
@@ -188,21 +188,21 @@ def import_data():
 			if resample_attempt == parameters.attempts_max:
 				raise(ExceededAttempts)
 				exit()
-	forecaststeps = input(wrapper.fill('How many periods into the future would you like to generate your forecast for? By default the package has set this value to 12, Keep in mind the granularity of your data. Here 12 would be a year for monthly data while 52 would be a year for weekly data. Please use integers'))
+	forecaststeps = input(wrapper.fill('How many periods into the future would you like to generate your forecast for? By default the package has set this value to 12, Keep in mind the granularity of your data. Here 12 would be a year for monthly data while 52 would be a year for weekly data. Please use integers.   '))
 	forecaststeps = int(forecaststeps)
-	splitdf = input(wrapper.fill('Will you need to split your dataset into a testing and training dataset for validating your model? y/n'))
+	splitdf = input(wrapper.fill('Will you need to split your dataset into a testing and training dataset for validating your model? y/n   '))
 	if splitdf.lower() == 'y':
-		inputdate = input(wrapper.fill('What date do you wish to split your dataset into a training and testing dataset? This is not the date the forecast will begin.'))
+		inputdate = input(wrapper.fill('What date do you wish to split your dataset into a training and testing dataset? This is not the date the forecast will begin.   '))
 		if resamplefreq == 'MS':
 			testdate = first_day_of_month(inputdate)
 		else:
 			inputdate = datetime.datetime.strptime(inputdate, '%m-%d-%Y').date()
 			testdate = last_sunday(inputdate, 6) 
-	groupsindata = input('Do you have groups in your dataset? With groups you will be able to run a seperate timeseries model for each group. Please type (Y/N)')
+	groupsindata = input('Do you have groups in your dataset? With groups you will be able to run a seperate timeseries model for each group. Please type (Y/N)   ')
 	if groupsindata.lower() == 'y':
 		group_attempt = parameters.zero
 		while group_attempt < parameters.attempts_max:
-			groupbox = input('What is the column name for the groups in your dataset?')
+			groupbox = input('What is the column name for the groups in your dataset?   ')
 			group = groupbox.lower()
 			if group in startdata.columns:
 				startdata[group] = startdata[group].astype(str)
@@ -216,7 +216,7 @@ def import_data():
 	startdata[timevariable] = pd.to_datetime(startdata[timevariable])
 	startdata['period'] = (startdata[timevariable].dt.strftime('%B'))
 	startdata['year'] = (startdata[timevariable].dt.year)
-	normalizedata = input('Do you want to normalize any monetary data? (acceptable answers are yes/no or y/n)')
+	normalizedata = input('Do you want to normalize any monetary data? (acceptable answers are yes/no or y/n)   ')
 	if normalizedata.upper() == 'YES' or normalizedata.upper() == 'Y':
 		cpi_frame = pd.DataFrame()
 		headers = {'Content-type': 'application/json'}
@@ -226,11 +226,11 @@ def import_data():
 		p = requests.get('https://api.bls.gov/publicAPI/v1/timeseries/data/', data=jsondata, headers=headers, auth = HTTPBasicAuth('apikey', 'e5f82668f98943a6becb6c6dfb08841f'))
 		json_data = json.loads(p.text)
 		print('\n' + wrapper.fill('You are about to run a function to generate the Consumer Price Index (CPI). The CPI can be used to account for inflation in monetary data.'))
-		chooseyear = input('What year do you want to index data to?')
+		chooseyear = input('What year do you want to index data to?   ')
 		#Checking to make sure the year is valid otherwise raising a custom error
 		if int(chooseyear) < beginyear_cpi or int(chooseyear) > endyear_cpi: 
 			raise InvalidYear(beginyear_cpi, endyear_cpi)
-		choosemonth = input(f'What month of {chooseyear} do you want to index data to?')
+		choosemonth = input(f'What month of {chooseyear} do you want to index data to?   ')
 		#Checking to make sure the month is not in the future, if it is raising a custom error
 		if int(chooseyear) == endyear_cpi and int(datetime.datetime.strptime(choosemonth.capitalize(),"%B").strftime("%m")) > (date.today().month - 1):
 			raise InvalidMonth()
@@ -262,7 +262,7 @@ class breakthescript():
 		global startdata
 		global resamplefreq
 		global testdate
-		print('\n' + '\n' + wrapper.fill(color.BOLD + 'Clayton DEA Team Timeseries Functions' + color.END)
+		print('\n' + '\n' + wrapper.fill(color.BOLD + 'Timeseries Functions' + color.END)
 				+ '\n' + wrapper_indent.fill('You do not need to feed any variables into these functions,the variables are captured in the steps you just completed. Simply copy out whatever function you wish to run, make sure the alias (ts) is correct for your imported package and run the function.')
 				+ '\n' + wrapper_indent.fill('Helpful tips and instructions for each model are provided below.'))
 		print('\n' + wrapper_head.fill(color.BLUE + 'Model Selection Tool' + color.END)
@@ -287,7 +287,7 @@ class breakthescript():
 
 
 #This is the introduction text that will print when a user first imports the package. This will help direct any users to the step by step instructions and features of the package.
-print('\n' + '\n' + wrapper.fill(f'Thank you for using the {color.BrightBlue}Clayton DEA&G{color.END} time series package.')+ '\n')
+print('\n' + '\n' + wrapper.fill(f'Thank you for using the time series package.')+ '\n')
 import_data()
 breakthescript()
 
@@ -307,14 +307,14 @@ class diagnostics:
 				+ 'ANOVA' + '\n'
 				+ 'acf' + '\n'
 				+ 'Time series plots')
-		diagbox = input('Which function would you like to run? Input is case sensitive')
+		diagbox = input('Which function would you like to run? Input is case sensitive.   ')
 		def tsdiag(self,alpha = 0.05):
-			change_alpha = input(wrapper.fill(color.BOLD + 'Do you wish to change the significance level for your AD Fuller test? By default it is set to 95%.' + color.END))
+			change_alpha = input(wrapper.fill(color.BOLD + 'Do you wish to change the significance level for your AD Fuller test? By default it is set to 95%.  ' + color.END))
 			if change_alpha == '':
 				alpha = alpha
 			else:
 				alpha = float(change_alpha)
-			anova_filename = input('Do you have a file location you want to save your ADFuller Results in txt format?')
+			anova_filename = input('Do you have a file location you want to save your ADFuller Results in txt format?   ')
 			print(color.BOLD + 'ADFuller test for time series data' + color.END)
 			text =  'One of the assumptions of Time Series modeling methods is that data be stationary. Stationary data are considered stationary if they do not have trend or seasonal effects. When data are stationary, summary statistics like mean and variance remain constant over time. If data is non-stationary it should be corrected by removing trends and seasonal effects.'
 			print(wrapper.fill(text = text) + '\n')
@@ -362,8 +362,8 @@ class diagnostics:
 							print('Fail to reject the null hypothesis, the data is non-stationary.','\n', file = adf_group)
 						adf_group.close()
 		def tsanova(self):
-			anova_x = input(wrapper.fill('What is your x-variable for the anova model?'))
-			anova_filename = input(wrapper.fill('If you wish to save the results of your ANOVA test to a folder on your local drive them input the file path here.'))
+			anova_x = input(wrapper.fill('What is your x-variable for the anova model?   '))
+			anova_filename = input(wrapper.fill('If you wish to save the results of your ANOVA test to a folder on your local drive them input the file path here.   '))
 			print(color.BOLD + 'ANOVA test with groupings' + color.END)
 			text = 'The ANOVA text looks for differences in the means for your categorical variable. One category will be captured in the "Intercept" term and the other paramter estimates will show the difference(s) from that mean. If you use this grouping model, a seperate anova model will be run for each group.'
 			print(wrapper.fill(text = text) + '\n')
@@ -388,17 +388,17 @@ class diagnostics:
 						anova_groups_file.close
 
 		def acf(self, numlags = forecaststeps, pacf = 'False'):
-			change_lags = input('If you wish to change the number of lags for your Autocorrelation plot please enter an integer here.')
+			change_lags = input('If you wish to change the number of lags for your Autocorrelation plot please enter an integer here.   ')
 			if change_lags == '':
 				numlags = numlags
 			else:
 				numlags = int(change_lags)
-			change_pacf = input('If you wish to change the plot to the Partial Autocorrelation Function please input Yes and hit enter.')
+			change_pacf = input('If you wish to change the plot to the Partial Autocorrelation Function please input Yes and hit enter.   ')
 			if change_pacf == 'Yes':
 				pacf = 'True'
 			else:
 				pacf = pacf
-			acf_filename = input('Do you want to save your acf plots to a PDF file on your local drive? If so put the file path here.')
+			acf_filename = input('Do you want to save your acf plots to a PDF file on your local drive? If so put the file path here.   ')
 			if group == '':
 				if pacf == 'True':
 					plt.figure(figsize = (12,6))
@@ -419,9 +419,9 @@ class diagnostics:
 			else:
 				grouped = self.data.groupby(group)
 				if len(group) > 10 and acf_filename == '':
-					text = input(f'Based on your selected group there will be {len(group)} plots printed. Python experiences rendering issues with many plots. If you wish to proceed press enter, otherwise put your filepath here with a filename at the end. It is recommended to create a folder specifically for this project and then create subfolders for each of your plots.')
+					text = input(f'Based on your selected group there will be {len(group)} plots printed. Python experiences rendering issues with many plots. If you wish to proceed press enter, otherwise put your filepath here with a filename at the end. It is recommended to create a folder specifically for this project and then create subfolders for each of your plots.   ')
 					if text != '':
-						acf_filename = input('Put the file path here and press enter.')
+						acf_filename = input('Put the file path here and press enter.   ')
 				else:
 					for g in grouped.groups:
 						gdata = grouped.get_group(g)
@@ -444,7 +444,7 @@ class diagnostics:
 
 		def timeseriesplot(self):
 			if group == '':
-				plots_filename = input('Do you wish to save your plots to a local file? If so place the file path here and press enter.')
+				plots_filename = input('Do you wish to save your plots to a local file? If so place the file path here and press enter.   ')
 				print(wrapper.fill(f'These plots show the change in your Y variable over time. This is useful for visualizing the data and looking for any trends that might exist.'))
 				plt.figure(figsize = (20,10))
 				sns.lineplot(x = timevariable, y = y, data = self.data, legend = 'full')
@@ -454,7 +454,7 @@ class diagnostics:
 					figs.savefig(f'{plots_filename}_timeseries_plots')
 			else:
 				plot_groups = self.data.groupby(group)
-				plots_filename = input('Do you wish to save your plots to a local file? If so place the file path here and press enter.')
+				plots_filename = input('Do you wish to save your plots to a local file? If so place the file path here and press enter.   ')
 				print(color.BOLD + 'Time Series Plots' + color.END)
 				print(wrapper.fill(f'These plots show the change in your Y variable over time. This is useful for visualizing the data and looking for any trends that might exist. You chose {color.BOLD}{group}{color.END} as your column to group by, you should expect {len(plot_groups.groups)} plots.'))
 				for g in plot_groups.groups:
@@ -491,7 +491,7 @@ class selectmodel:
 		self.naive_y_hat = pd.DataFrame()
 		self.select_frame = pd.DataFrame()
 		self.rmsframe = pd.DataFrame()
-		selectbox = input('Are you sure you wish to run the model selection function? y/n')
+		selectbox = input('Are you sure you wish to run the model selection function? y/n   ')
 		def selectmodelfit(self):
 			if group == '':
 				print(wrapper.fill('The RMSE is how well our model fit the data so we would want to choose the model that has the lowest RMSE. Please be aware of the model itself though, sometimes the simpler models may have the lowest RMSE but upon visualization may not provide the best fit for trends and seasonality.'))
@@ -722,14 +722,14 @@ class ARIMA:
 					test = test_groups.get_group(g)
 					data_test = test[(pd.to_datetime(test[timevariable]) < testdate)]
 					self.testdataset = self.testdataset.append(data_test,ignore_index = True)
-		arimabox = input('Are you sure you wish to run the ARIMA seasonal model? If so type yes, otherwise press enter.')
+		arimabox = input('Are you sure you wish to run the ARIMA seasonal model? If so type yes, otherwise press enter.   ')
 		def optimal_arima_groups(self):
 			if group == '':
 				if not sys.warnoptions:
 					import warnings
 					warnings.simplefilter('ignore')
 				p = d = q = range(0,self.upper_pdq+1)
-				seasonal = input(wrapper.fill('How many periods do you wish to include for a seasonal trend in your data? For example, if you are using monthly data, 12 would be a yearly trend.'))
+				seasonal = input(wrapper.fill('How many periods do you wish to include for a seasonal trend in your data? For example, if you are using monthly data, 12 would be a yearly trend.   '))
 				s = seasonal
 				s = [pd.to_numeric(s)]
 				pdq = list(itertools.product(p,d,q))
@@ -773,7 +773,7 @@ class ARIMA:
 			else:
 				self.data[timevariable] = pd.to_datetime(self.data[timevariable])
 				p = d = q = range(0,self.upper_pdq+1)
-				seasonal = input(wrapper.fill('How many periods do you wish to include for a seasonal trend in your data? For example, if you are using monthly data, 12 would be a yearly trend.'))
+				seasonal = input(wrapper.fill('How many periods do you wish to include for a seasonal trend in your data? For example, if you are using monthly data, 12 would be a yearly trend.   '))
 				s = seasonal
 				s = [pd.to_numeric(s)]
 				pdq = list(itertools.product(p,d,q))
@@ -841,11 +841,11 @@ class ARIMA:
 				print('\n' + 'The new dataframe with the optimal parameter estimates is "optimalarimaest"')
 
 		def optimal_arima(self):
-			arimasummary_filename = input('If you wish to save the summary results to a file put the filepath here without a filename.')
+			arimasummary_filename = input('If you wish to save the summary results to a file put the filepath here without a filename.   ')
 			if resamplefreq == 'MS':
-				forecaststeps = input('How many periods into the future would you like to run the forecast for (your periods are months 12 = 1 year)? (please use integers)')
+				forecaststeps = input('How many periods into the future would you like to run the forecast for (your periods are months 12 = 1 year)? (please use integers)   ')
 			else:
-				forecaststeps = input('How many periods into the future would you like to run the forecast for (your periods are weeks 52 = 1 year)? (please use integers)')
+				forecaststeps = input('How many periods into the future would you like to run the forecast for (your periods are weeks 52 = 1 year)? (please use integers)   ')
 			if group == '':
 				self.Predictions_final = pd.DataFrame()
 				self.Means_final = pd.DataFrame({ 'Y' : [] })
@@ -1020,7 +1020,7 @@ class ARIMA:
 		def plotPredObserved(self):
 			#predictions_final_testplot = self.Predictions_final[(pd.to_datetime(self.Predictions_final.index) <= self.testdate)] #helps trim down the plot so there is no empty space.
 			predictions_final_testplot = self.Predictions_final
-			arima_po_plots_filename = input('If you wish to save your plots to a folder input the filepath here without a filename.')
+			arima_po_plots_filename = input('If you wish to save your plots to a folder input the filepath here without a filename.   ')
 			if group == '':
 				#axis_observed = predictions_final_testplot.Y.plot(label = 'Observed', figsize = (14,7))
 				#predictions_final_testplot.Predicted.plot(ax = axis_observed, label = 'Forecast', alpha = 0.95, figsize = (14,7))
@@ -1057,7 +1057,7 @@ class ARIMA:
 						plt.close()
 
 		def plotForecast(self):
-			arima_forecast_filename = input('If you wish to save your forecast plots to a local folder put the filepath here without a filename.')
+			arima_forecast_filename = input('If you wish to save your forecast plots to a local folder put the filepath here without a filename.   ')
 			if group == '':
 				plt.figure(figsize = (14,7))
 				plt.plot(self.Predictions_final.index, self.Predictions_final['Y'], label = 'Observed')
@@ -1098,14 +1098,14 @@ class ARIMA:
 				if self.optimalarimaest.empty == False:
 					optimal_arima(self)
 					if splitdf.upper() == 'Y':
-						plotpobox = input('Do you wish to plot the predicted versus observed valued from the arima model? If so type yes')
+						plotpobox = input('Do you wish to plot the predicted versus observed valued from the arima model? If so type yes   ')
 						if plotpobox.upper() == 'YES':
 							plotPredObserved(self)
-							pfbox = input('Do you wish to plot the forecasted values for your ARIMA model? If so type yes')
+							pfbox = input('Do you wish to plot the forecasted values for your ARIMA model? If so type yes   ')
 						else:
-							pfbox = input('Do you wish to plot the forecasted values for your ARIMA model? If so type yes')
+							pfbox = input('Do you wish to plot the forecasted values for your ARIMA model? If so type yes   ')
 					else:
-						pfbox = input('Do you wish to plot the forecasted values for your ARIMA model? If so type yes')
+						pfbox = input('Do you wish to plot the forecasted values for your ARIMA model? If so type yes   ')
 					if pfbox.upper() == 'YES':
 						plotForecast(self)
 		else:
@@ -1131,7 +1131,7 @@ class naive:
 		self.training = pd.DataFrame()
 		self.summary = pd.DataFrame()
 		self.naive_y_hat = pd.DataFrame()
-		naivebox = input('Are you sure you wish to run the naive time series model? If yes then type y and press enter otherwise press enter to quit the function.')
+		naivebox = input('Are you sure you wish to run the naive time series model? If yes then type y and press enter otherwise press enter to quit the function.   ')
 		def naivefit(self):
 			if group == '':
 				if splitdf.upper() == 'Y':
